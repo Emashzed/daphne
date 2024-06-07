@@ -73,7 +73,7 @@ char gstr_rom_extension[sizeof(DAPHNE_ROM_EXTENSION)];
 * retro_audio_sample_t			Renders single audio frame, following cb renders
 * retro_audio_sample_batch_t	multiple audio frames.  Use only one of these.
 **************************************************************************************************/
-static	retro_log_printf_t			log_cb			   = NULL;
+static  retro_log_printf_t			log_cb			   = NULL;
 		retro_video_refresh_t		   video_cb          = NULL;
 static	retro_input_poll_t			input_poll_cb    	= NULL;
 static	retro_input_state_t			input_state_cb		= NULL;
@@ -367,6 +367,11 @@ extern SDL_SW_YUVTexture * get_vb_waiting(int * vb_ndx);
 extern bool input_pause(bool fPaused);
 extern void set_vb_rendering_done(int vb_ndx);
 extern int retro_run_frames_delta;
+extern void audio_callback ( void *data, uint8_t *stream, int length );
+
+#define AUDIO_FRAMES (DAPHNE_AUDIO_SAMPLE_RATE/(int)DAPHNE_TIMING_FPS)
+int audio_length = AUDIO_FRAMES;
+uint8_t audio_buffer[AUDIO_FRAMES*4]; // Audio is actually 16bits stereo
 
 int retro_run_frames	= 0;
 
@@ -400,21 +405,24 @@ void retro_run(void)
 		for (int n_button_ndx = 0; n_button_ndx < RETRO_MAX_BUTTONS; n_button_ndx++)
 		{
 			uint16_t n_key;
-			n_key = input_state_cb(n_port, RETRO_DEVICE_JOYPAD, 0, n_button_ndx);
+				n_key = input_state_cb(n_port, RETRO_DEVICE_JOYPAD, 0, n_button_ndx);
 
 			if (retro_has_inputstate_changed(n_port, n_button_ndx, n_key))
 			{
-            if (button_ids[n_button_ndx] != SWITCH_NOTHING)
-            {
+				if (button_ids[n_button_ndx] != SWITCH_NOTHING)
+				{
                if (n_key)
-                  input_enable(button_ids[n_button_ndx]);
+						input_enable(button_ids[n_button_ndx]);
                else
-                  input_disable(button_ids[n_button_ndx]);
-            }
+						input_disable(button_ids[n_button_ndx]);
+				}
 			}
 		}
 		// float analogX = (float)input_state_cb(n_port, RETRO_DEVICE_ANALOG, RETRO_DEVICE_INDEX_ANALOG_LEFT, RETRO_DEVICE_ID_ANALOG_X) / 32768.0f;
 	}
+
+	audio_callback(NULL, audio_buffer, audio_length*4);
+	audio_batch_cb((int16_t*)audio_buffer, audio_length);
 
 #if 0
 	int ab_ndx = -1;
@@ -1117,7 +1125,7 @@ bool retro_load_game(const struct retro_game_info *in_game)
 	}
 
 	if (main_daphne(num_args, pstr_args) != 0)
-      return false;
+  		return false;
 
    if (g_game)
    {
