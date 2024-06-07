@@ -6,3 +6,7 @@
 *.so
 package.json
 .npmignore
+
+obj/
+libs/
+daphne.code-workspace

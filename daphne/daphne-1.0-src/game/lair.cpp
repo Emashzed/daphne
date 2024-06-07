@@ -1200,7 +1200,7 @@ unsigned lair::get_libretro_button_map(unsigned id)
          return SWITCH_COIN1; /*Player Coin */
       case RETRO_DEVICE_ID_JOYPAD_START:
          return SWITCH_START1; /*Player Start */
-      case RETRO_DEVICE_ID_JOYPAD_Y:
+      case RETRO_DEVICE_ID_JOYPAD_A:
          return SWITCH_BUTTON1; /* Sword */
       case RETRO_DEVICE_ID_JOYPAD_X:
          return SWITCH_BUTTON3; /* Score Toggle */
@@ -1224,7 +1224,7 @@ const char *lair::get_libretro_button_name(unsigned id)
          return "Coin Insert";
       case RETRO_DEVICE_ID_JOYPAD_START:
          return "Start";
-      case RETRO_DEVICE_ID_JOYPAD_Y:
+      case RETRO_DEVICE_ID_JOYPAD_A:
          return "Sword";
       case RETRO_DEVICE_ID_JOYPAD_X:
          return "Score Toggle";
